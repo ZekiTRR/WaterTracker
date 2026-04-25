@@ -83,7 +83,7 @@ bool Storage::isFirstStart(const std::string& filename)
     return false;
 }
 
-bool Storage::CreateUserProfileSettings(int age, int weightKg, const std::string& gender, const std::string& filename) {
+bool Storage::CreateUserProfileSettings(int age, int weightKg,int dailyGoal, const std::string& gender, const std::string& filename) {
     std::string dirPath = getDataDirectory();
     if (dirPath.empty()) return false;
 
@@ -92,6 +92,7 @@ bool Storage::CreateUserProfileSettings(int age, int weightKg, const std::string
     j["age_onstart"] = age;
     j["weightKg_onstart"] = weightKg;
     j["gender"] = gender;
+    j["dailyGoal"] = dailyGoal;
 
     std::ofstream file(dirPath + "\\" + filename);
     if (!file.is_open()) {
@@ -103,7 +104,7 @@ bool Storage::CreateUserProfileSettings(int age, int weightKg, const std::string
     return true;
 }
 
-bool Storage::loadUserProfileSettings(int& age, int& weightKg, std::string& gender, std::string& firststart, const std::string& filename) {
+bool Storage::loadUserProfileSettings(int& age,int& dailygoal ,int& weightKg, std::string& gender, std::string& firststart, const std::string& filename) {
     std::string dirPath = getDataDirectory();
     if (dirPath.empty()) return false;
 
@@ -127,4 +128,18 @@ bool Storage::loadUserProfileSettings(int& age, int& weightKg, std::string& gend
         std::cerr << "Ошибка парсинга профиля пользователя: " << e.what() << '\n';
         return false;
     }
+
+}
+bool Storage::CreateDailyProfile(std::string &filename) {
+    std::string dirPath = getDataDirectory();
+
+    std::ifstream file(dirPath + "\\" + filename);
+    if (!file.is_open()) {
+        std::cerr << "Не удалось загрузить профиль пользователя: " << filename << '\n';
+        return false;
+    }
+    json j;
+    j["date"] = return_current_time_and_date();
+    j["consumedMl"] = 0;
+    return true;
 }

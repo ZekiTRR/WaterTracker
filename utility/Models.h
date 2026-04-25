@@ -9,6 +9,7 @@ public:
     std::string firststart; // Первый запуск приложения (дата и время)
     int age = 0;            // Возраст пользователя
     int weightKg = 0;       // Вес пользователя в килограммах
+    int dailyGoal = 0;
     std::string gender;     // Пол пользователя ("male" / "female")
 
     // Проверка, является ли этот запуск первым
@@ -18,12 +19,12 @@ public:
 
     // Сохранить текущие данные профиля в JSON (вызывается при первом запуске)
     bool createProfile() {
-        return Storage::CreateUserProfileSettings(age, weightKg, gender);
+        return Storage::CreateUserProfileSettings(age, weightKg, dailyGoal, gender);
     }
 
     // Загрузить данные из JSON (вызывается при последующих запусках)
     bool loadProfile() {
-        return Storage::loadUserProfileSettings(age, weightKg, gender, firststart);
+        return Storage::loadUserProfileSettings(age, dailyGoal, weightKg, gender, firststart);
     }
 
     // Расчет дневной нормы воды (не static, так как зависит от конкретного юзера)

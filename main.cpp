@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
         profile.age = age;
         profile.weightKg = weight;
         profile.gender = (genderSelection == "Мужской") ? "male" : "female";
+        profile.dailyGoal = profile.dailyGoalMl();
 
         // Сохраняем в JSON
         if (!profile.createProfile()) {
