@@ -6,10 +6,55 @@
 #include <QWidget>
 #include <QLabel>
 #include <QString>
+#include <QProgressBar>
 #include "utility/Models.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    a.setStyleSheet(R"(
+         QWidget {
+             background-color: #2E3440; /* Темно-серый фон */
+             color: #ECEFF4;             /* Светлый текст */
+             font-family: "Segoe UI";
+             font-size: 11pt;
+         }
+         QPushButton {
+             background-color: #5E81AC; /* Синий цвет для кнопки */
+             border: none;
+             padding: 8px 16px;
+             border-radius: 4px;
+             font-weight: bold;
+         }
+         QPushButton:hover {
+             background-color: #81A1C1; /* Более светлый синий при наведении */
+         }
+         QPushButton:pressed {
+             background-color: #4C566A; /* Темно-серый при нажатии */
+         }
+         QProgressBar {
+             border: 1px solid #4C566A;
+             border-radius: 4px;
+             text-align: center;
+             color: #2E3440;
+         }
+         QProgressBar::chunk {
+             background-color: #A3BE8C; /* Зеленый для заполнения */
+             border-radius: 3px;
+         }
+         QLineEdit {
+             background-color: #3B4252;
+             border: 1px solid #4C566A;
+             padding: 6px;
+             border-radius: 4px;
+         }
+         QLabel#progressLabel { /* Стиль только для метки с прогрессом */
+             font-size: 12pt;
+             font-weight: bold;
+             qproperty-alignment: 'AlignCenter';
+         }
+     )");
+
 
     UserProfile profile;
     DailyEntry dailyEntry;
@@ -75,13 +120,17 @@ int main(int argc, char *argv[]) {
     layout->addWidget(progressLabel);
     layout->addWidget(remainingLabel);
 
+    QLineEdit *inputField = new QLineEdit();
+    inputField->setPlaceholderText("Введите количество воды (мл)");
+    layout->addWidget(inputField);
+
     // Кнопка для добавления воды
-    QPushButton *addButton = new QPushButton("Выпить стакан воды (250 мл)");
+    QPushButton *addButton = new QPushButton("Выпить стакан воды");
     layout->addWidget(addButton);
 
     // Соединяем нажатие кнопки с действием
     QObject::connect(addButton, &QPushButton::clicked, [&]() {
-        int amount = 250;
+        int amount = inputField->text().toInt();
         if (dailyEntry.add_consumed(amount)) {
             updateLabels(); // Обновляем текст после добавления
         } else {
