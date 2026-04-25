@@ -60,12 +60,27 @@ bool Storage::save_string_to_json(const std::string& text, const std::string& fi
     return true;
 }
 
-bool Storage::isFirstStart(const std::string& filename) {
+bool Storage::isFirstStart(const std::string& filename)
+{
     std::string dirPath = getDataDirectory();
-    if (dirPath.empty()) return true; // Если не можем получить путь, считаем первым запуском (или можно кинуть исключение)
+
+    if (dirPath.empty())
+        return true;
 
     std::string fullPath = dirPath + "\\" + filename;
-    return FindFirstFileA(fullPath.c_str(), nullptr) == INVALID_HANDLE_VALUE;
+
+    DWORD attributes = GetFileAttributesA(fullPath.c_str());
+
+    // Если файл не найден — первый запуск
+    if (attributes == INVALID_FILE_ATTRIBUTES)
+        return true;
+
+    // Если по этому пути папка, а не файл — считаем, что нужного файла нет
+    if (attributes & FILE_ATTRIBUTE_DIRECTORY)
+        return true;
+
+    // Файл существует
+    return false;
 }
 
 bool Storage::CreateUserProfileSettings(int age, int weightKg, const std::string& gender, const std::string& filename) {

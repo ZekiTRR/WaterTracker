@@ -42,11 +42,13 @@ int main(int argc, char *argv[]) {
 
         QMessageBox::information(nullptr, "Успех", "Профиль успешно создан!\nВаша дневная норма воды: " + QString::number(profile.dailyGoalMl()) + " мл.");
     } else {
-        // Профиль уже существует, просто загружаем
+        // Профиль уже существует, просто загружаем его
         if (!profile.loadProfile()) {
             QMessageBox::warning(nullptr, "Ошибка", "Профиль существует, но не удалось его загрузить.");
         }
     }
+
+
 
 
     // Дизайн основного окна
@@ -54,18 +56,18 @@ int main(int argc, char *argv[]) {
     mainWindow.resize(300, 200);
     mainWindow.setWindowTitle("Water Tracker");
 
-    QVBoxLayout* layout = new QVBoxLayout(&mainWindow);
+    QVBoxLayout *layout = new QVBoxLayout(&mainWindow);
 
     QString infoText = QString("Возраст: %1\nВес: %2 кг\nПол: %3\nНорма: %4 мл")
-                        .arg(profile.age)
-                        .arg(profile.weightKg)
-                        .arg(profile.gender == "male" ? "Мужской" : "Женский")
-                        .arg(profile.dailyGoalMl());
+            .arg(profile.age)
+            .arg(profile.weightKg)
+            .arg(profile.gender == "male" ? "Мужской" : "Женский")
+            .arg(profile.dailyGoalMl());
 
-    QLabel* infoLabel = new QLabel(infoText);
+    QLabel *infoLabel = new QLabel(infoText);
     layout->addWidget(infoLabel);
 
-    QPushButton* button = new QPushButton("Выпить стакан воды (250 мл)");
+    QPushButton *button = new QPushButton("Выпить стакан воды (250 мл)");
     layout->addWidget(button);
 
     mainWindow.show();
