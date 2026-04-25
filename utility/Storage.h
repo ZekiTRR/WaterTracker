@@ -3,22 +3,22 @@
 
 #include <string>
 
-
 class Storage {
 public:
-    static std::string return_current_time_and_date(); // Получить текущую дату и время
-    static std::string getDataDirectory(); // Получить или создать путь к папке data
+    static std::string return_current_time_and_date();
+    static std::string getDataDirectory();
 
-    // Пример функции для сохранения любой строки в json
-    static bool save_string_to_json(const std::string& text, const std::string& filename = "data.json");
+    // Проверка, первый ли это запуск приложения в целом
+    static bool isFirstStart(const std::string& filename = "UserProfile.json");
 
-    // Работа с профилем пользователя
+    // --- Функции для работы с профилем пользователя ---
+    static bool CreateUserProfileSettings(int age, int weightKg, int dailyGoal, const std::string& gender, const std::string& filename = "UserProfile.json");
+    static bool loadUserProfileSettings(int& age, int& dailygoal, int& weightKg, std::string& gender, std::string& firststart, const std::string& filename = "UserProfile.json");
 
-
-    static bool isFirstStart(const std::string& filename = "UserProfile.json"); // Проверка первого запуска
-    static bool CreateUserProfileSettings(int age, int weightKg, int dailyGoal, const std::string& gender, const std::string& filename = "UserProfile.json"); // Создать профиль
-    static bool loadUserProfileSettings(int& age, int& dailygoal, int& weightKg, std::string& gender, std::string& firststart, const std::string& filename = "UserProfile.json"); // Загрузить профиль
-    bool CreateDailyProfile(std::string &filename); // Создать профиль для ежедневных записей (можно расширить для сохранения consumedMl)
+    // --- Функции для работы с ежедневными записями ---
+    static bool CreateDailyProfile(const std::string& filename);
+    static int addConsumedMl(const std::string& filename, int amount);
+    static int getConsumedMl(const std::string& filename);
 };
 
 #endif //APPTRACKER_STORAGE_H

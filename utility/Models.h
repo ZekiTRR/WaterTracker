@@ -37,26 +37,29 @@ public:
         }
         return weightKg * 35;
     }
+
+
+
 };
 
 class DailyEntry {
 public:
-    std::string date; // Дата и время записи
-    int consumedMl = 0; // Количество выпитой воды в миллилитрах сегодня
-    UserProfile* user;  // Указатель на профиль пользователя
+    Storage storage;
+    std::string directory = storage.return_current_time_and_date() + ".json"; // Имя файла для ежедневного профиля
 
-    DailyEntry(UserProfile* u) : user(u) {}
-
-    int goalMl_of_today() const {
-        if (!user) return 0;
-        int remaining = user->dailyGoalMl() - consumedMl;
-        return (remaining > 0) ? remaining : 0; // Не возвращаем отрицательные значения
+    bool create_daily_profile() {
+        return Storage::CreateDailyProfile(directory);
     }
 
-    void addWater(int ml) {
-        consumedMl += ml;
-        // Здесь в будущем можно добавить сохранение consumedMl в базу или JSON
+    bool isFirstStart() const {
+        return Storage::isFirstStart();
     }
+
+    // Получить количество выпитой воды
+    int getConsumed();
+
+    // Добавить выпитую воду
+    bool add_consumed(int amount);
 };
 
 #endif //APPTRACKER_MODELS_H

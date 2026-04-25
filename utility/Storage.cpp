@@ -1,4 +1,5 @@
 #include "Storage.h"
+#include "Models.h"
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -8,6 +9,22 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
+
+// --- Функции класса DailyEntry ---
+
+int DailyEntry::getConsumed() {
+    // Просто вызываем статическую функцию из Storage, передавая имя файла
+    return Storage::getConsumedMl(directory);
+}
+
+bool DailyEntry::add_consumed(int amount) {
+    // Вызываем статическую функцию и проверяем результат
+    int newAmount = Storage::addConsumedMl(directory, amount);
+    return newAmount >= 0; // Возвращаем true, если не было ошибки (-1)
+}
+
+
+// --- Статические функции класса Storage ---
 
 std::string Storage::return_current_time_and_date() {
     auto now = std::chrono::system_clock::now();
@@ -21,7 +38,7 @@ std::string Storage::return_current_time_and_date() {
 #endif
 
     std::stringstream ss;
-    ss << std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S"); // Добавил время для точности
+    ss << std::put_time(&local_tm, "%Y-%m-%d");
     return ss.str();
 }
 
@@ -36,54 +53,19 @@ std::string Storage::getDataDirectory() {
     std::string exePath(path);
     std::string dirPath = exePath.substr(0, exePath.find_last_of('\\')) + "\\data";
 
-    // Создаем папку, если она не существует
     CreateDirectoryA(dirPath.c_str(), nullptr);
-
     return dirPath;
 }
 
-bool Storage::save_string_to_json(const std::string& text, const std::string& filename) {
+bool Storage::isFirstStart(const std::string& filename) {
     std::string dirPath = getDataDirectory();
-    if (dirPath.empty()) return false;
-
-    json j;
-    j["date"] = return_current_time_and_date();
-    j["text"] = text;
-
-    std::ofstream file(dirPath + "\\" + filename);
-    if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл: " << filename << '\n';
-        return false;
-    }
-
-    file << j.dump(4);
-    return true;
-}
-
-bool Storage::isFirstStart(const std::string& filename)
-{
-    std::string dirPath = getDataDirectory();
-
-    if (dirPath.empty())
-        return true;
-
+    if (dirPath.empty()) return true;
     std::string fullPath = dirPath + "\\" + filename;
-
     DWORD attributes = GetFileAttributesA(fullPath.c_str());
-
-    // Если файл не найден — первый запуск
-    if (attributes == INVALID_FILE_ATTRIBUTES)
-        return true;
-
-    // Если по этому пути папка, а не файл — считаем, что нужного файла нет
-    if (attributes & FILE_ATTRIBUTE_DIRECTORY)
-        return true;
-
-    // Файл существует
-    return false;
+    return (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-bool Storage::CreateUserProfileSettings(int age, int weightKg,int dailyGoal, const std::string& gender, const std::string& filename) {
+bool Storage::CreateUserProfileSettings(int age, int weightKg, int dailyGoal, const std::string& gender, const std::string& filename) {
     std::string dirPath = getDataDirectory();
     if (dirPath.empty()) return false;
 
@@ -104,42 +86,113 @@ bool Storage::CreateUserProfileSettings(int age, int weightKg,int dailyGoal, con
     return true;
 }
 
-bool Storage::loadUserProfileSettings(int& age,int& dailygoal ,int& weightKg, std::string& gender, std::string& firststart, const std::string& filename) {
+bool Storage::loadUserProfileSettings(int& age, int& dailygoal, int& weightKg, std::string& gender, std::string& firststart, const std::string& filename) {
     std::string dirPath = getDataDirectory();
     if (dirPath.empty()) return false;
 
     std::ifstream file(dirPath + "\\" + filename);
     if (!file.is_open()) {
-        std::cerr << "Не удалось загрузить профиль пользователя: " << filename << '\n';
+        // Это не ошибка, если файл просто еще не создан
         return false;
     }
 
     try {
         json j;
         file >> j;
-
         firststart = j.value("firststart", "");
         age = j.value("age_onstart", 0);
         weightKg = j.value("weightKg_onstart", 0);
         gender = j.value("gender", "unknown");
-
+        dailygoal = j.value("dailyGoal", 0);
         return true;
     } catch (const json::exception& e) {
         std::cerr << "Ошибка парсинга профиля пользователя: " << e.what() << '\n';
         return false;
     }
-
 }
-bool Storage::CreateDailyProfile(std::string &filename) {
-    std::string dirPath = getDataDirectory();
 
-    std::ifstream file(dirPath + "\\" + filename);
-    if (!file.is_open()) {
-        std::cerr << "Не удалось загрузить профиль пользователя: " << filename << '\n';
-        return false;
+bool Storage::CreateDailyProfile(const std::string& filename) {
+    std::string dirPath = getDataDirectory();
+    if (dirPath.empty()) return false;
+
+    std::string path = dirPath + "\\" + filename;
+
+    // Проверяем, существует ли файл, чтобы не перезаписать его
+    std::ifstream checkFile(path);
+    if (checkFile.good()) {
+        return true; // Файл уже существует, ничего не делаем
     }
+
     json j;
     j["date"] = return_current_time_and_date();
     j["consumedMl"] = 0;
+
+    std::ofstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Не удалось создать ежедневный профиль: " << filename << '\n';
+        return false;
+    }
+    file << j.dump(4);
     return true;
+}
+
+int Storage::addConsumedMl(const std::string& filename, int amount) {
+    std::string dirPath = getDataDirectory();
+    if (dirPath.empty()) return -1;
+
+    std::string path = dirPath + "\\" + filename;
+    json j;
+
+    // Сначала читаем текущее значение
+    std::ifstream inputFile(path);
+    if (inputFile.is_open()) {
+        try {
+            inputFile >> j;
+        } catch (const json::exception& e) {
+            std::cerr << "Ошибка чтения JSON для добавления воды: " << e.what() << '\n';
+            // Можно создать новый файл, если старый поврежден
+            j["consumedMl"] = 0;
+        }
+        inputFile.close();
+    } else {
+        // Если файл не открылся, возможно, его еще нет. Создадим его.
+        CreateDailyProfile(filename);
+        j["consumedMl"] = 0;
+    }
+
+
+    int currentAmount = j.value("consumedMl", 0);
+    currentAmount += amount;
+    j["consumedMl"] = currentAmount;
+
+    // Теперь записываем обновленное значение
+    std::ofstream outputFile(path);
+    if (!outputFile.is_open()) {
+        std::cerr << "Не удалось открыть файл для записи: " << filename << '\n';
+        return -1;
+    }
+
+    outputFile << j.dump(4);
+    return currentAmount;
+}
+
+int Storage::getConsumedMl(const std::string& filename) {
+    std::string dirPath = getDataDirectory();
+    if (dirPath.empty()) return 0;
+
+    std::string path = dirPath + "\\" + filename;
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        return 0; // Если файла нет, значит, еще ничего не выпито
+    }
+
+    try {
+        json j;
+        file >> j;
+        return j.value("consumedMl", 0);
+    } catch (const json::exception& e) {
+        std::cerr << "Ошибка чтения JSON для получения выпитого: " << e.what() << '\n';
+        return 0;
+    }
 }
