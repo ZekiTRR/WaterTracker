@@ -13,47 +13,119 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     a.setStyleSheet(R"(
-         QWidget {
-             background-color: #2E3440; /* Темно-серый фон */
-             color: #ECEFF4;             /* Светлый текст */
-             font-family: "Segoe UI";
-             font-size: 11pt;
-         }
-         QPushButton {
-             background-color: #5E81AC; /* Синий цвет для кнопки */
-             border: none;
-             padding: 8px 16px;
-             border-radius: 4px;
-             font-weight: bold;
-         }
-         QPushButton:hover {
-             background-color: #81A1C1; /* Более светлый синий при наведении */
-         }
-         QPushButton:pressed {
-             background-color: #4C566A; /* Темно-серый при нажатии */
-         }
-         QProgressBar {
-             border: 1px solid #4C566A;
-             border-radius: 4px;
-             text-align: center;
-             color: #2E3440;
-         }
-         QProgressBar::chunk {
-             background-color: #A3BE8C; /* Зеленый для заполнения */
-             border-radius: 3px;
-         }
-         QLineEdit {
-             background-color: #3B4252;
-             border: 1px solid #4C566A;
-             padding: 6px;
-             border-radius: 4px;
-         }
-         QLabel#progressLabel { /* Стиль только для метки с прогрессом */
-             font-size: 12pt;
-             font-weight: bold;
-             qproperty-alignment: 'AlignCenter';
-         }
-     )");
+    QWidget {
+        background: qlineargradient(
+            x1:0, y1:0, x2:1, y2:1,
+            stop:0 #EAFBFF,
+            stop:0.45 #D7F4FF,
+            stop:1 #BDEBFF
+        );
+        color: #063B4F;
+        font-family: "Segoe UI";
+        font-size: 11pt;
+    }
+
+    QLabel {
+        background: transparent;
+        color: #06445C;
+        font-size: 13pt;
+        font-weight: 600;
+        padding: 6px;
+        qproperty-alignment: AlignCenter;
+    }
+
+    QLineEdit {
+        background-color: rgba(255, 255, 255, 220);
+        color: #063B4F;
+        border: 2px solid #7ED6F6;
+        border-radius: 12px;
+        padding: 9px 12px;
+        selection-background-color: #4FC3F7;
+        font-size: 11pt;
+    }
+
+    QLineEdit:focus {
+        border: 2px solid #00AEEF;
+        background-color: white;
+    }
+
+    QLineEdit::placeholder {
+        color: #6FAFC2;
+    }
+
+    QPushButton {
+        background: qlineargradient(
+            x1:0, y1:0, x2:1, y2:1,
+            stop:0 #00B4D8,
+            stop:1 #0077B6
+        );
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 11px 18px;
+        font-size: 11pt;
+        font-weight: 700;
+    }
+
+    QPushButton:hover {
+        background: qlineargradient(
+            x1:0, y1:0, x2:1, y2:1,
+            stop:0 #20CFFF,
+            stop:1 #0096C7
+        );
+    }
+
+    QPushButton:pressed {
+        background-color: #005F8F;
+        padding-top: 12px;
+        padding-bottom: 10px;
+    }
+
+    QProgressBar {
+        background-color: rgba(255, 255, 255, 180);
+        border: 2px solid #7ED6F6;
+        border-radius: 10px;
+        text-align: center;
+        color: #06445C;
+        font-weight: bold;
+        height: 18px;
+    }
+
+    QProgressBar::chunk {
+        background: qlineargradient(
+            x1:0, y1:0, x2:1, y2:0,
+            stop:0 #48CAE4,
+            stop:0.5 #00B4D8,
+            stop:1 #0077B6
+        );
+        border-radius: 8px;
+    }
+
+    QMessageBox, QInputDialog {
+        background-color: #EAFBFF;
+        color: #063B4F;
+    }
+
+    QMessageBox QLabel, QInputDialog QLabel {
+        color: #063B4F;
+        font-size: 10.5pt;
+        font-weight: 500;
+        qproperty-alignment: AlignLeft;
+    }
+
+    QSpinBox, QComboBox {
+        background-color: white;
+        color: #063B4F;
+        border: 2px solid #7ED6F6;
+        border-radius: 10px;
+        padding: 6px;
+    }
+
+    QComboBox::drop-down {
+        border: none;
+        width: 24px;
+    }
+)");
 
 
     UserProfile profile;
