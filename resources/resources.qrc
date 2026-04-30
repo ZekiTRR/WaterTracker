@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>Iconka.ico</file>
+    </qresource>
+</RCC>

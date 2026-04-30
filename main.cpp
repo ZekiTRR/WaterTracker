@@ -7,10 +7,14 @@
 #include <QLabel>
 #include <QString>
 #include <QProgressBar>
+#include <QIcon>
 #include "utility/Models.h"
+#include "utility/Tracker.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    const QIcon appIcon(QStringLiteral(":/icons/Iconka.ico"));
+    a.setWindowIcon(appIcon);
 
     a.setStyleSheet(R"(
     QWidget {
@@ -170,6 +174,8 @@ int main(int argc, char *argv[]) {
     QWidget mainWindow;
     mainWindow.resize(300, 200);
     mainWindow.setWindowTitle("Water Tracker");
+    mainWindow.setWindowIcon(appIcon);
+    Tracker tracker(&mainWindow);
 
     QVBoxLayout *layout = new QVBoxLayout(&mainWindow);
 
@@ -200,6 +206,9 @@ int main(int argc, char *argv[]) {
     QPushButton *addButton = new QPushButton("Выпить стакан воды");
     layout->addWidget(addButton);
 
+    QPushButton *settingsButton = new QPushButton(QString::fromUtf8("Настройки напоминаний"));
+    layout->addWidget(settingsButton);
+
     // Соединяем нажатие кнопки с действием
     QObject::connect(addButton, &QPushButton::clicked, [&]() {
         int amount = inputField->text().toInt();
@@ -208,6 +217,10 @@ int main(int argc, char *argv[]) {
         } else {
             QMessageBox::warning(&mainWindow, "Ошибка", "Не удалось добавить выпитую воду.");
         }
+    });
+
+    QObject::connect(settingsButton, &QPushButton::clicked, [&]() {
+        tracker.openReminderSettings(&mainWindow);
     });
 
     mainWindow.show();
