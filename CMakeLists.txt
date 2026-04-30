@@ -23,7 +23,9 @@ add_executable(WaterTracker main.cpp
         utility/Tracker.h
         utility/Storage.cpp
         utility/Storage.h
-        utility/Models.h)
+        utility/Models.h
+        resources/resources.qrc
+        resources/app_icon.rc)
 target_link_libraries(WaterTracker PRIVATE
         Qt::Core
         Qt::Gui
