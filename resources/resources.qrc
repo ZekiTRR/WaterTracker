@@ -2,4 +2,7 @@
     <qresource prefix="/icons">
         <file>Iconka.ico</file>
     </qresource>
+    <qresource prefix="/qml">
+        <file alias="WaterAmbient.qml">qml/WaterAmbient.qml</file>
+    </qresource>
 </RCC>

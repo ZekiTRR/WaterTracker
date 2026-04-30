@@ -7,10 +7,13 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_PREFIX_PATH "E:/Qt/6.11.0/mingw_64/lib/cmake")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 COMPONENTS
         Core
         Gui
+        Quick
+        QuickWidgets
         Widgets
         REQUIRED)
 
@@ -18,17 +21,21 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-add_executable(WaterTracker main.cpp
+add_executable(WaterTracker WIN32 main.cpp
         utility/Tracker.cpp
         utility/Tracker.h
         utility/Storage.cpp
         utility/Storage.h
         utility/Models.h
         resources/resources.qrc
-        resources/app_icon.rc)
+        resources/app_icon.rc
+        utility/stats/checkinfo.cpp
+        utility/stats/checkinfo.h)
 target_link_libraries(WaterTracker PRIVATE
         Qt::Core
         Qt::Gui
+        Qt::Quick
+        Qt::QuickWidgets
         Qt::Widgets
 )
 
@@ -55,10 +62,16 @@ if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
                 "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
     endif ()
-    foreach (QT_LIB Core Gui Widgets)
+    foreach (QT_LIB Core Gui Qml QmlModels QmlWorkerScript Network OpenGL Quick QuickWidgets Widgets)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 "${QT_INSTALL_PATH}/bin/Qt6${QT_LIB}${DEBUG_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach (QT_LIB)
+    if (EXISTS "${QT_INSTALL_PATH}/qml")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${QT_INSTALL_PATH}/qml"
+                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/qml")
+    endif ()
 endif ()
