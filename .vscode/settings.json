@@ -1,0 +1,14 @@
+{
+  "cmake.configureOnOpen": true,
+  "cmake.buildDirectory": "${workspaceFolder}/cmake-build-debug",
+  "cmake.generator": "Ninja",
+
+  "cmake.configureArgs": [
+    "-DCMAKE_PREFIX_PATH=E:/Qt/6.11.0/mingw_64",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+    "-DCMAKE_MAKE_PROGRAM=E:/CLion 2025.3.3/bin/ninja/win/x64/ninja.exe"
+  ],
+
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/cmake-build-debug/compile_commands.json"
+}
